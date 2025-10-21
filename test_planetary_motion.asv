@@ -20,8 +20,8 @@ function test_planetary_motion()
     axis equal; axis square;
     axis([-3,9,-6,6])
     hold on
-    plot(0,0,'ro','markerfacecolor','r','MarkerSize',10, "DisplayName","sun");
-    plot(V_list(:,1),V_list(:,2),'b', "DisplayName","analytical");
+    plot(0,0,'ro','markerfacecolor','r','MarkerSize',5, "DisplayName","sun");
+    plot(V_list(:,1),V_list(:,2),'b','MarkerSize',3, "DisplayName","analytical");
 
     names = {"midpoint","kutta3rd","nystrom5th"};
     for i=1:length(names)
