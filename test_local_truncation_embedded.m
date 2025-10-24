@@ -1,4 +1,6 @@
+% run_local_truncation({@RK_step_embedded},{"dormandprince","fehlberg","heuneuler","bogacki"})
 run_local_truncation({@RK_step_embedded},{"dormandprince"})
+
 
 function run_local_truncation(step_funcs, methods)
     orbit_params = struct();
@@ -22,8 +24,8 @@ function run_local_truncation(step_funcs, methods)
     numerical = zeros(2*iter,length(h_range));
     for j = 1:2:iter
         for i=1:length(h_range)
-            meth = ceil(j/length(step_funcs));
-            step = ceil(j/length(methods));
+            meth = ceil(j/2/length(step_funcs));
+            step = ceil(j/2/length(methods));
             XB = compute_planetary_motion(0+h_range(i),V0,orbit_params);
             step_func = step_funcs{step};
             [XB1, XB2 ,num_evals] = step_func(wrapper,0,V0,h_range(i),rk_method(methods{meth}));
@@ -35,7 +37,7 @@ function run_local_truncation(step_funcs, methods)
     loglog(h_range,analytical,".",DisplayName="analytical");
     hold on
     filter_params = struct();
-    filter_params.min_xval = 10^-2;
+    filter_params.min_xval = 10^-1.5;
     filter_params.max_xval = 10^0;
     [p,k] = loglog_fit(h_range,analytical,filter_params);
     loglog(h_range,k*h_range.^p,"-",DisplayName="p = "+string(p)+"; k = "+string(k));
@@ -51,12 +53,26 @@ function run_local_truncation(step_funcs, methods)
         hold on
         [p,k] = loglog_fit(h_range,numerical(j,:),filter_params);
         loglog(h_range,k*h_range.^p,"-",DisplayName="p = "+string(p)+"; k = "+string(k));
-        if mod(j,2)
-            loglog(h_range,numerical(j,:),".",DisplayName=replace(func2str(step_funcs{step}),"_"," ")+" : "+b+" : "+methods{meth});
+        if ~mod(j,2)
+            loglog(h_range,abs(numerical(j-1,:)-numerical(j,:)),".",DisplayName=replace(func2str(step_funcs{step}),"_"," ")+" : "+"diff"+" : "+methods{meth});
         end
     end
     xlabel("Step Size")
     ylabel("Local Truncation Error")
     axis([10^-5, 10^1,10^-16, 10^2]);
+    legend("Location","northwest")
+    figure;
+    for j=1:iter
+        meth = ceil(j/2/length(step_funcs));
+        step = ceil(j/2/length(methods));
+        if ~mod(j,2)
+            loglog(abs(numerical(j-1,:)-numerical(j,:)),numerical(j-1,:),".",DisplayName=replace(func2str(step_funcs{step}),"_"," ")+" : "+"XB1"+" : "+methods{meth});
+            hold on
+            loglog(abs(numerical(j-1,:)-numerical(j,:)),numerical(j,:),".",DisplayName=replace(func2str(step_funcs{step}),"_"," ")+" : "+"XB2"+" : "+methods{meth});
+        end
+    end
+    xlabel("|XB1-XB2|")
+    ylabel("Local Truncation Error")
+    axis([10^-5, 10^1,10^-8, 10^2]);
     legend("Location","northwest")
 end
