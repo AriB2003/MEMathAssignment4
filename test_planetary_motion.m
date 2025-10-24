@@ -34,7 +34,7 @@ function test_planetary_motion()
         BT_struct = rk_method(names{i});
         p = length(BT_struct.C)-1;
         error_desired = 10^-8;
-        [t_list,X_list,h_avg, num_evals] = explicit_RK_variable_step_integration(wrapper,tspan,V0,h_ref,BT_struct,p,error_desired);
+        [t_list,X_list,h_avg, num_evals, failure_rate] = explicit_RK_variable_step_integration(wrapper,tspan,V0,h_ref,BT_struct,p,error_desired);
         plot(X_list(1:4:end,1),X_list(1:4:end,2),'--','LineWidth', 1,"DisplayName",names{i});
     end
     legend();    

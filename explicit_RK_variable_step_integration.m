@@ -16,9 +16,9 @@
 %X_list: the vector of X, [X0';X1';X2';...;(X_end)'] at each time step
 %h_avg: the average step size
 %num_evals: total number of calls made to rate_func_in during the integration
-function [t_list,X_list,h_avg, num_evals] = explicit_RK_variable_step_integration(rate_func_in,tspan,X0,h_ref,BT_struct,p,error_desired)
+function [t_list,X_list,h_avg, num_evals, failure_rate] = explicit_RK_variable_step_integration(rate_func_in,tspan,X0,h_ref,BT_struct,p,error_desired)
 
- num_evals = 0;
+    num_evals = 0;
 
     % calculate the timesteps at which the numerical diff. method will be run
     t_delta = tspan(2)-tspan(1);
@@ -33,16 +33,21 @@ function [t_list,X_list,h_avg, num_evals] = explicit_RK_variable_step_integratio
     h_next = h_avg;
     i = 2;
 
+    successes = [];
     % run numerical differentiation method based on parameters given above
     while t_list(i-1) < tspan(2)
         redo = true;
-        t_list = [t_list,t_list(i-1)+h_next];
+        t_list = [t_list,0];
         while redo == true
+          successes = [successes,0];
+          t_list(end) = t_list(i-1)+h_next;
           [X_next, evals, h_next, redo] = explicit_RK_variable_step(rate_func_in, t_list(i-1), X_list(i-1,:)', h_next, BT_struct, p , error_desired);  
           num_evals = num_evals + evals;
         end  
+        successes(end) = 1;
         X_list = [X_list;X_next'];
         i = i+1;
     end
-
+    failure_rate = 1-mean(successes);
+    h_avg = mean(diff(t_list));
 end
