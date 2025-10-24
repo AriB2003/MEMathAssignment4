@@ -19,7 +19,7 @@ function [XB1, XB2, num_evals] = RK_step_embedded(rate_func_in,t,XA,h,BT_struct)
     s = size(BT_struct.A,1);
     K = zeros(length(XA),s);
     for i = 1:s
-    K(:,i) = rate_func_in(t+BT_struct.C(i)*h, XA + h*(K*BT_struct.A(i,:)'));
+        K(:,i) = rate_func_in(t+BT_struct.C(i)*h, XA + h*(K*BT_struct.A(i,:)'));
     end
     XB1 = XA + h*(K*BT_struct.B(1,:)');
     XB2 = XA + h*(K*BT_struct.B(2,:)');

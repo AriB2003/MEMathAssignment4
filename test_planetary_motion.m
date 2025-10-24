@@ -29,7 +29,7 @@ function test_planetary_motion()
         [t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(wrapper,tspan,V0,h_ref,BT_struct);
         plot(X_list(1:4:end,1),X_list(1:4:end,2),'--','LineWidth', 1,"DisplayName",names{i});
     end
-    names = {"dormandprince","fehlberg","bogackis"};
+    names = {"dormandprince","fehlberg","bogacki"};
     for i=1:length(names)
         BT_struct = rk_method(names{i});
         p = length(BT_struct.C)-1;
