@@ -38,6 +38,7 @@ function run_global_truncation(step_funcs, methods)
         meth = ceil(j/length(step_funcs));
         step = ceil(j/length(methods));
         filter_params = struct();
+        filter_params.min_xval = 10^-2.5;
         filter_params.max_xval = 10^-1;
         loglog(h_avg_list(j,:),numerical(j,:),".",DisplayName=replace(func2str(step_funcs{step}),"_"," ")+" : "+methods{meth});
         hold on
