@@ -22,6 +22,6 @@ function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
     K(:,i) = rate_func_in(t+BT_struct.C(i)*h, XA + h*(K*BT_struct.A(i,:)'));
     end
    
-    XB = XA + h*(K*BT_struct.B);
+    XB = XA + h*(K*BT_struct.B(1,:)');
     num_evals = s;
 end
