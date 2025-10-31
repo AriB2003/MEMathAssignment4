@@ -16,11 +16,17 @@
 %num_evals: A count of the number of times that you called
 % rate_func_in when computing the next step
 function [XB1, XB2, num_evals] = RK_step_embedded(rate_func_in,t,XA,h,BT_struct)
+    
+    % Initialize K matrix to store intermediate stages
     s = size(BT_struct.A,1);
     K = zeros(length(XA),s);
+
+    % Populate K matrix based on input function
     for i = 1:s
         K(:,i) = rate_func_in(t+BT_struct.C(i)*h, XA + h*(K*BT_struct.A(i,:)'));
     end
+
+    % Apply RK formula to find different X(t+h) values
     XB1 = XA + h*(K*BT_struct.B(1,:)');
     XB2 = XA + h*(K*BT_struct.B(2,:)');
     num_evals = s;

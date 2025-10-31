@@ -1,3 +1,8 @@
+% Generates the Butcher tableau for several Runge-Kutta methods.
+% INPUTS: 
+% name: the name of the Runge-Kutta method
+% OUTPUTS:
+% BT_struct: A struct of the Butcher tableau for the specified method
 function BT_struct = rk_method(name)
     BT_struct = struct();
     switch name

@@ -38,17 +38,21 @@ function [t_list,X_list,h_avg, num_evals, failure_rate] = explicit_RK_variable_s
     while t_list(i-1) < tspan(2)
         redo = true;
         t_list = [t_list,0];
+        % calculate the next step (run it repeatedly until it succeeds)
         while redo == true
-          successes = [successes,0];
+          successes = [successes,0]; % another attempt was run
           t_list(end) = t_list(i-1)+h_next;
+          % run step
           [X_next, evals, h_next, redo] = explicit_RK_variable_step(rate_func_in, t_list(i-1), X_list(i-1,:)', h_next, BT_struct, p , error_desired);  
-          h_next = min(h_next, tspan(2)-t_list(end)+1e-15);
+          % calculate new step size
+          h_next = min(h_next, tspan(2)-t_list(end)+1e-15); 
           
           num_evals = num_evals + evals;
         end  
-        successes(end) = 1;
+        % update relevant lists
+        successes(end) = 1; % step was a success
         X_list = [X_list;X_next'];
-        i = i+1;
+        i = i+1; % move on
     end
     failure_rate = 1-mean(successes);
     h_avg = mean(diff(t_list));

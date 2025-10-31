@@ -24,12 +24,16 @@
 % True if the estimated error was larger than error_desired
 function [XB, num_evals, h_next, redo] = explicit_RK_variable_step (rate_func_in,t,XA,h,BT_struct,p,error_desired)
 
+    % run a Runge-Kutta step with our given step size
     [XB1, XB2, num_evals] = RK_step_embedded(rate_func_in, t, XA, h, BT_struct);
-    XB = XB1;
-    local_error = abs(norm(XB1)-norm(XB2));
+    XB = XB1; % pick our XB
+    local_error = abs(norm(XB1)-norm(XB2));  % calculate error
     alpha = 5; % max step size multiplier
+    
+    % calculate next step size
     h_next = min(0.9 * (error_desired/local_error)^(1/p), alpha) * h;
 
+    % set redo value based on calculated error
     if local_error > error_desired
         redo = true;
     else

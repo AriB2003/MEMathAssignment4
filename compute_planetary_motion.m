@@ -29,6 +29,7 @@
 %which shows how to use compute_planetary_motion(...)
 %You can start from there and then tweak it.
 function V_list = compute_planetary_motion(t_list,V0,orbit_params)
+    % unpack initial variables
     m_sun = orbit_params.m_sun;
     m_planet = orbit_params.m_planet;
     G = orbit_params.G;
