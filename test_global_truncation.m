@@ -1,6 +1,8 @@
 run_global_truncation({@explicit_RK_fixed_step_integration},{"midpoint","kutta3rd","nystrom5th"})
 
+% Compare global truncation error for multiple RK methods and step functions.
 function run_global_truncation(step_funcs, methods)
+    % Define initial conditions
     orbit_params = struct();
     orbit_params.m_sun = 1;
     orbit_params.m_planet = 1;
@@ -10,29 +12,41 @@ function run_global_truncation(step_funcs, methods)
     dxdt0 = 0;
     dydt0 = 1.5;
     
+    % Generate reference solution
     V0 = [x0;y0;dxdt0;dydt0];
     t_range = linspace(0,30,100);
     V_list = compute_planetary_motion(t_range,V0,orbit_params);
 
+    % Prepare function to integrate and time span
     tspan = [t_range(1),t_range(end)];
     wrapper = @(t,V) gravity_rate_func(t,V,orbit_params);
 
+    % Define range of step sizes to test
     h_range = logspace(-3,0,100);
     h_avg_list = zeros(size(h_range));
     iter = length(step_funcs)*length(methods);
     numerical = zeros(iter,length(h_range));
     evals = zeros(iter,length(h_range));
+
+    % Loop through methods and step sizes
     for j = 1:iter
         for i=1:length(h_range)
+            % Select which RK method and step function combination to use
             meth = ceil(j/length(step_funcs));
             step = ceil(j/length(methods));
             step_func = step_funcs{step};
+
+            % Perform integration using the chosen method and step size
             [t_list,X_list,h_avg, num_evals] = step_func(wrapper,tspan,V0,h_range(i),rk_method(methods{meth}));
+
+            % Store results
             h_avg_list(j,i) = h_avg;
             numerical(j,i) = norm(X_list(end, :)-V_list(end,:));
             evals(j,i) = num_evals;
         end
     end
+
+    % Plot error vs. step size
     figure;
     for j=1:iter
         meth = ceil(j/length(step_funcs));
@@ -63,6 +77,8 @@ function run_global_truncation(step_funcs, methods)
     % ylabel("Global Truncation Error")
     % axis([10^0, 10^6, 10^-10, 10^5]);
     % legend("Location","northeast")
+
+    % Plot error vs. number of function evaluations
     figure;
     for j=1:iter
         meth = ceil(j/length(step_funcs));

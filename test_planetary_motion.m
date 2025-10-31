@@ -1,5 +1,6 @@
 %example for how to use compute_planetary_motion(...)
 function test_planetary_motion()
+    % Define initial conditions and orbit parameters
     orbit_params = struct();
     orbit_params.m_sun = 1;
     orbit_params.m_planet = 1;
@@ -10,13 +11,17 @@ function test_planetary_motion()
     dydt0 = 1.5;
     
     V0 = [x0;y0;dxdt0;dydt0];
+
+    % Generate reference solution
     t_range = linspace(0,30,100);
     V_list = compute_planetary_motion(t_range,V0,orbit_params);
 
+    % Prepare function to integrate and time span
     tspan = [t_range(1),t_range(end)];
     h_ref = 0.2;
     wrapper = @(t,V) gravity_rate_func(t,V,orbit_params);
 
+    % Plot reference solution
     figure; 
     axis equal; axis square;
     axis([-3,9,-6,6])
@@ -24,21 +29,27 @@ function test_planetary_motion()
     plot(0,0,'ro','markerfacecolor','r','MarkerSize',10, "DisplayName","sun");
     plot(V_list(:,1),V_list(:,2),'b', "DisplayName","analytical");
 
+    % Run fixed-step numerical integration methods
     names = {"midpoint","kutta3rd","nystrom5th"};
     for i=1:length(names)
         BT_struct = rk_method(names{i});
         [t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(wrapper,tspan,V0,h_ref,BT_struct);
+        % Plot results
         plot(X_list(1:4:end,1),X_list(1:4:end,2),'--','LineWidth', 1,"DisplayName",names{i});
     end
+    % Run variable-step numerical integration methods
     names = {"dormandprince","fehlberg","bogacki"};
     for i=1:length(names)
         BT_struct = rk_method(names{i});
         p = length(BT_struct.C)-1;
         error_desired = 10^-8;
         [t_list,X_list,h_avg, num_evals, failure_rate] = explicit_RK_variable_step_integration(wrapper,tspan,V0,h_ref,BT_struct,p,error_desired);
+        % Plot results
         plot(X_list(1:4:end,1),X_list(1:4:end,2),'--','LineWidth', 1,"DisplayName",names{i});
     end
-    legend();  
+    legend(); 
+
+    % Plot position and velocity over time
     figure;
     inc = 25;
     subplot(2,1,1);
@@ -54,6 +65,8 @@ function test_planetary_motion()
     ylabel("Velocity (m/s)")
     xlabel("Time (s)")
     legend()
+
+    % Plot adaptive step size vs distance from the sun
     h_list = diff(t_list);
     r = sqrt(X_list(:,1).^2+X_list(:,2).^2);
     figure;

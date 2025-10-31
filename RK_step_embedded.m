@@ -26,7 +26,7 @@ function [XB1, XB2, num_evals] = RK_step_embedded(rate_func_in,t,XA,h,BT_struct)
         K(:,i) = rate_func_in(t+BT_struct.C(i)*h, XA + h*(K*BT_struct.A(i,:)'));
     end
 
-    % Apply RK formula to find different X(t+h) values
+    % Apply RK formula to find X(t+h) values
     XB1 = XA + h*(K*BT_struct.B(1,:)');
     XB2 = XA + h*(K*BT_struct.B(2,:)');
     num_evals = s;
